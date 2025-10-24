@@ -1,10 +1,10 @@
 # Zotero MCP Search Skill for Claude
 
-A comprehensive Claude Code skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server.
+A comprehensive Claude Desktop skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server.
 
 ## What This Is
 
-This is a **Claude Code skill** that teaches Claude how to search your Zotero reference library intelligently and comprehensively. Instead of simple one-off searches, Claude learns to:
+This is a **Claude Desktop skill** that teaches Claude how to search your Zotero reference library intelligently and comprehensively. Instead of simple one-off searches, Claude learns to:
 
 - Use **semantic/AI-powered search** to find conceptually related papers
 - Try **multiple search angles** with different phrasings and synonyms
@@ -35,7 +35,6 @@ This skill provides Claude with:
 - **Mandatory multi-angle search strategies** (minimum 3 semantic + 3 keyword variations)
 - **Safe batching guidelines** (limit=10 per search to prevent crashes)
 - **Comprehensive search patterns** combining multiple methods
-- **Agent-based approaches** for complex searches needing many results
 - **Iterative refinement workflows** to improve results
 
 ## Features
@@ -47,7 +46,6 @@ This skill provides Claude with:
 - **Iterative Refinement:** Analyzes initial results and refines search strategy accordingly
 - **Safety-First Design:** Built-in protections against Claude Desktop crash bugs
 - **Comprehensive Coverage:** Searches metadata, full-text PDFs, annotations, and notes
-- **Agent Integration:** Guidelines for using Task agents for complex multi-search operations
 
 ### Search Methods Taught
 
@@ -65,7 +63,6 @@ This skill provides Claude with:
 
 - Default `limit=10` for all searches (max 15-20 only when critical)
 - Multiple small searches instead of one large search
-- Agent-based batching for comprehensive results
 - Iterative interactive approaches for user-guided exploration
 
 ## Installation
@@ -81,28 +78,25 @@ This skill provides Claude with:
 
 ### Installing This Skill
 
-#### Option 1: Download and Import (Claude Desktop)
+#### Option 1: Download and Import
 
 1. Download the [latest release](../../releases) zip file
 2. Open Claude Desktop
 3. Go to Settings → Skills
 4. Click "Import Skill" and select the downloaded zip file
 
-#### Option 2: Manual Installation (Claude Code CLI)
-
-1. Clone or download this repository
-2. Copy the `zotero-mcp` folder to your Claude skills directory:
-   ```bash
-   cp -r zotero-mcp ~/.claude/skills/
-   ```
-3. Restart Claude Desktop or reload skills
-
-#### Option 3: Install from URL (Claude Desktop)
+#### Option 2: Install from URL
 
 If Claude Desktop supports direct URL import:
 ```
-https://github.com/YOUR_USERNAME/zotero-mcp-skill/archive/main.zip
+https://github.com/kerim/zotero-mcp-skill/archive/main.zip
 ```
+
+#### Option 3: Manual Installation
+
+1. Clone or download this repository
+2. Copy the `zotero-mcp-skill` folder contents to your Claude skills directory
+3. Restart Claude Desktop or reload skills
 
 ## Usage
 
@@ -150,20 +144,6 @@ When you ask Claude to search, it will typically:
 3. **Combine results** - Merge and deduplicate findings
 4. **Refine if needed** - Try alternative angles if results are poor
 5. **Present findings** - Show results with search path explanation
-
-### Advanced: Using Agents for Comprehensive Searches
-
-For queries needing many results, Claude may use the Task agent approach:
-
-```
-"I need a comprehensive list of papers about working memory"
-```
-
-Claude will:
-1. Launch a search agent via Task tool
-2. Agent performs 10-15 small searches (limit=10 each) with different angles
-3. Agent combines, deduplicates, and prioritizes results
-4. Agent returns curated top 25-30 papers with relevance explanations
 
 ## Search Philosophy
 
@@ -226,8 +206,7 @@ This skill teaches Claude to use these Zotero MCP server tools:
 
 1. **Hard limit defaults** - All searches use limit=10 by default
 2. **Batched iteration** - Multiple small searches instead of large ones
-3. **Agent delegation** - Complex searches delegated to agents with batch instructions
-4. **Interactive fallback** - Progressive result presentation with user confirmation
+3. **Interactive fallback** - Progressive result presentation with user confirmation
 
 ## Troubleshooting
 
@@ -259,7 +238,7 @@ Contributions welcome! To improve this skill:
 
 1. Fork this repository
 2. Make your changes to `SKILL.md`
-3. Test with Claude Code
+3. Test with Claude Desktop
 4. Submit a pull request
 
 ### Ideas for Contributions
@@ -273,8 +252,8 @@ Contributions welcome! To improve this skill:
 ## Related Projects
 
 - **Zotero MCP Server:** https://github.com/54yyyu/zotero-mcp
-- **Claude Code Skills Documentation:** https://docs.claude.com/claude-code/skills
 - **Model Context Protocol:** https://modelcontextprotocol.io/
+- **Claude Desktop:** https://claude.ai/download
 
 ## License
 
@@ -283,7 +262,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 ## Acknowledgments
 
 - Built for the [Zotero MCP Server](https://github.com/54yyyu/zotero-mcp) by @54yyyu
-- Developed for Claude Code by Anthropic
+- Developed for Claude Desktop
 - Semantic search powered by Claude's embedding models
 
 ## Support
