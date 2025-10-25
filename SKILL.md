@@ -1,11 +1,18 @@
 ---
 name: zotero-mcp
-description: Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches. Context-aware - uses agents in Claude Code, batched searches in Claude Desktop.
+description: Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches. Designed for Logseq bibliography output with bilingual support. Context-aware - uses agents in Claude Code, batched searches in Claude Desktop.
 ---
 
 # Zotero MCP Search Skill
 
 Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches.
+
+**Designed for Logseq:** This skill generates bibliographies formatted specifically for Logseq with:
+- Outline hierarchy (nested bullets, no markdown headers)
+- Compact citation format (Author, Year. Title)
+- Chinese-English bilingual support with translations
+- Plain text (no bold styling)
+- Zotero item links
 
 **Context-Aware Skill:** This skill automatically adapts its strategy based on the environment:
 - **Claude Code:** Uses autonomous agents for comprehensive multi-step searches
@@ -19,6 +26,7 @@ Interface with Zotero's MCP server to search and retrieve bibliographic data usi
 - Combine different search methods
 - Iteratively refine based on results
 - Ask clarifying questions when needed
+- Format bibliographies for Logseq with proper outline structure
 
 ## Environment Detection
 

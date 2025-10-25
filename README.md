@@ -1,6 +1,6 @@
 # Zotero MCP Search Skill for Claude
 
-A comprehensive, **context-aware** skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server. Works intelligently in both **Claude Desktop** and **Claude Code**.
+A comprehensive, **context-aware** skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server. **Designed specifically for Logseq bibliography output** with bilingual (Chinese-English) support. Works intelligently in both **Claude Desktop** and **Claude Code**.
 
 ## What This Is
 
@@ -8,6 +8,7 @@ This is a **universal Claude skill** that teaches Claude how to search your Zote
 
 - **In Claude Code:** Uses autonomous agents for comprehensive multi-step searches
 - **In Claude Desktop:** Uses safe batched searches with conversation crash protection
+- **For Logseq:** Formats bibliographies with outline hierarchy, compact citations, and bilingual support
 
 Instead of simple one-off searches, Claude learns to:
 
@@ -17,6 +18,7 @@ Instead of simple one-off searches, Claude learns to:
 - **Iteratively refine** searches based on results
 - **Ask clarifying questions** when your query is ambiguous
 - **Adapt strategy** based on environment (agents in Code, batching in Desktop)
+- **Format bibliographies for Logseq** with proper outline structure and translations
 
 ## Why This Skill Exists
 
