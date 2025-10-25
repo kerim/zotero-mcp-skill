@@ -1,11 +1,15 @@
 ---
 name: zotero-mcp
-description: Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches. Use this skill when the user needs to search their Zotero library for papers, citations, or references using comprehensive multi-angle search strategies.
+description: Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches. Context-aware - uses agents in Claude Code, batched searches in Claude Desktop.
 ---
 
 # Zotero MCP Search Skill
 
 Interface with Zotero's MCP server to search and retrieve bibliographic data using advanced semantic search and multi-strategy approaches.
+
+**Context-Aware Skill:** This skill automatically adapts its strategy based on the environment:
+- **Claude Code:** Uses autonomous agents for comprehensive multi-step searches
+- **Claude Desktop:** Uses batched manual searches with safety limits
 
 ## Core Philosophy
 
@@ -15,6 +19,18 @@ Interface with Zotero's MCP server to search and retrieve bibliographic data usi
 - Combine different search methods
 - Iteratively refine based on results
 - Ask clarifying questions when needed
+
+## Environment Detection
+
+**Detect which environment you're running in:**
+- **Claude Code:** Agents available (Task tool), no conversation crash risk
+- **Claude Desktop:** No agents, conversation deletion risk with large responses
+
+**How to tell:** Check if Task tool is available in your tool list.
+
+---
+
+# PART 1: Claude Desktop Strategy
 
 ## ⚠️ CRITICAL: Avoiding Claude Desktop Crashes ⚠️
 
@@ -34,7 +50,7 @@ To get comprehensive results safely, use **iterative batched searches**:
 - Risks conversation deletion
 - No recovery possible
 
-### Recommended Approaches
+### Recommended Approaches for Claude Desktop
 
 #### Approach 1: Multi-Angle Coverage (Preferred)
 Instead of one search with limit=50, do **5 searches** with different angles:
@@ -47,16 +63,7 @@ Instead of one search with limit=50, do **5 searches** with different angles:
 ```
 This gives ~50 results from different perspectives, safer than one large call.
 
-#### Approach 2: Agent-Based Batched Search
-For complex searches needing many results:
-```
-1. Launch agent with Task tool
-2. Agent performs multiple limit=10 searches
-3. Agent synthesizes and prioritizes results
-4. Agent returns curated summary (not raw data dump)
-```
-
-#### Approach 3: Iterative Interactive
+#### Approach 2: Iterative Interactive
 For user-guided exploration:
 ```
 1. First batch: limit=10
@@ -65,7 +72,7 @@ For user-guided exploration:
 4. Next batch based on user feedback
 ```
 
-### Default Limits
+### Default Limits for Claude Desktop
 
 **Always use these safe defaults:**
 - `limit=10` for initial searches
@@ -73,21 +80,216 @@ For user-guided exploration:
 - **Never exceed limit=20** in a single call
 - For comprehensive results: use multiple searches, not larger limits
 
-## Search Strategy Framework
+---
 
-### 1. Initial Query Analysis
+# PART 2: Claude Code Strategy
 
-Before searching, analyze what the user is looking for:
-- **Conceptual queries** (theories, approaches, themes) → Start with semantic search
-- **Specific items** (author, title, year) → Start with keyword/advanced search
-- **Exploratory queries** ("What do I have about...") → Use multi-method approach
-- **Vague queries** → Ask clarifying questions first
+## Agent-First Approach
 
-### 2. Multi-Method Search Approach
+**When running in Claude Code, use autonomous agents** for comprehensive searches.
 
-**ALWAYS use multiple search methods in combination:**
+### When to Use Agents (Claude Code Only)
 
-#### A. Semantic Search (Primary for Conceptual Discovery)
+Use agents when:
+- User needs comprehensive literature searches
+- User asks exploratory questions ("What do I have about...")
+- User needs multi-angle search coverage
+- User wants thorough, curated results
+- User's query is conceptual or thematic
+
+Don't use agents when:
+- User asks for a single specific paper by exact title
+- User just wants to see recent additions
+- User is browsing collections interactively
+
+### Agent Task Patterns
+
+#### Pattern 1: Comprehensive Topic Search
+
+**User request:** "Find me papers about [topic]"
+
+**Agent task:**
+```
+Search my Zotero library comprehensively for papers about [topic].
+
+Use multiple search strategies autonomously:
+
+1. SEMANTIC SEARCHES (5-6 variations)
+   - Try natural language phrasings
+   - Try different conceptual angles
+   - Use synonyms and related terms
+   - No limit restrictions - get comprehensive results
+
+2. KEYWORD SEARCHES (3-4 variations)
+   - Try exact terms and variations
+   - Try broader/narrower terms
+   - Try related methodology terms
+
+3. TAG-BASED SEARCHES
+   - First use zotero_get_tags to discover relevant tags
+   - Then search by multiple relevant tags
+   - Try tag combinations
+
+4. FULL-TEXT & ANNOTATIONS
+   - Use zotero_search_notes for the concept
+   - Use zotero_get_annotations to find highlights
+   - Search for related concepts in notes
+
+5. SYNTHESIS
+   - Combine all results and deduplicate
+   - Identify the 20-30 most relevant papers
+   - Group by theme/approach if applicable
+   - Provide brief relevance explanations
+
+Return a curated list with:
+- Paper metadata (title, authors, year)
+- Why each paper is relevant
+- Thematic groupings if applicable
+- Coverage note (which strategies found what)
+```
+
+#### Pattern 2: Author-Focused Search
+
+**User request:** "What do I have by/about [author]?"
+
+**Agent task:**
+```
+Find all items related to [author] in my Zotero library.
+
+Search comprehensively:
+
+1. DIRECT AUTHORSHIP
+   - zotero_search_items with author="[author]"
+   - zotero_advanced_search with author field
+
+2. CITATIONS & MENTIONS
+   - zotero_search_notes: "[author]" (cited in my notes)
+   - zotero_get_annotations: "[author]" (mentioned in highlights)
+   - zotero_semantic_search: "[author]'s main concepts/theories"
+
+3. RELATED WORK
+   - Search for concepts/theories associated with this author
+   - Search for methodologies they use
+   - Search for co-authors
+
+4. SYNTHESIS
+   - Organize by: (1) authored by, (2) cited in my notes, (3) related concepts
+   - Include temporal overview if relevant
+   - Note any thematic clusters
+
+Return organized results with context about how each item relates to [author].
+```
+
+#### Pattern 3: Concept in Context
+
+**User request:** "Research about X in context Y"
+
+**Agent task:**
+```
+Find papers about [X] in the context of [Y].
+
+Multi-angle search strategy:
+
+1. COMBINED SEARCHES
+   - Semantic: "X in Y" + variations
+   - Semantic: "Y approaches to X"
+   - Advanced: keyword=X AND keyword=Y
+   - Advanced: keyword=X AND keyword=[Y synonyms]
+
+2. SEPARATE THEN CROSS-REFERENCE
+   - Find strong X papers
+   - Find strong Y papers
+   - Identify overlap and connections
+   - Check if X papers mention Y in fulltext
+   - Check if Y papers mention X in fulltext
+
+3. TAG ANALYSIS
+   - Get tags related to X
+   - Get tags related to Y
+   - Search items tagged with both domains
+   - Find bridging concepts in tags
+
+4. ANNOTATION MINING
+   - Search notes for X+Y together
+   - Search notes for X and Y separately
+   - Check if you've annotated connections
+
+5. SYNTHESIS
+   - Papers directly about X in Y context
+   - Papers about X that discuss Y
+   - Papers about Y that discuss X
+   - Papers that bridge both (even if not explicit)
+
+Return results grouped by relevance strength and connection type.
+```
+
+#### Pattern 4: Exploratory Discovery
+
+**User request:** "What's related to X?" or "Explore my library for X"
+
+**Agent task:**
+```
+Explore my Zotero library to discover all material related to [X].
+
+Comprehensive discovery approach:
+
+1. DIRECT SEARCHES (Cast wide net)
+   - Semantic search: multiple phrasings of X
+   - Keyword search: X and synonyms
+   - Tag search: X-related tags
+   - Notes/annotations: X mentions
+
+2. EXPANSION PHASE
+   - Analyze top results to identify:
+     * Related concepts and theories
+     * Related methodologies
+     * Related application domains
+     * Related authors
+   - Search for each of these expansions
+
+3. DEEP EXPLORATION
+   - For promising papers, check fulltext for related concepts
+   - Look at tags on promising papers, search those tags
+   - Check annotations for related ideas
+   - Look for cited works mentioned in your notes
+
+4. THEMATIC CLUSTERING
+   - Group all findings by themes/approaches
+   - Identify conceptual clusters
+   - Note connections between clusters
+   - Highlight surprising/unexpected connections
+
+5. SYNTHESIS
+   - Core papers directly about X
+   - Related theoretical frameworks
+   - Methodological connections
+   - Application domains
+   - Surprising/tangential connections worth noting
+
+Return a thematic map of your library's coverage of this topic.
+```
+
+### How to Launch Agents (Claude Code Only)
+
+Use the Task tool with `subagent_type="general-purpose"`:
+
+```
+Task(
+  description="Comprehensive Zotero search for X",
+  subagent_type="general-purpose",
+  prompt="[Use one of the task patterns above]"
+)
+```
+
+---
+
+# PART 3: Universal Search Strategy
+
+## Multi-Method Search Approach
+
+**ALWAYS use multiple search methods in combination** (in both environments):
+
+### A. Semantic Search (Primary for Conceptual Discovery)
 - Use `zotero_semantic_search` for conceptual, thematic, or exploratory queries
 - Try multiple phrasings of the same concept
 - Use natural language descriptions, not just keywords
@@ -95,8 +297,10 @@ Before searching, analyze what the user is looking for:
   - "theories of embodied cognition"
   - "how body influences thought and reasoning"
   - "physical experience shapes cognitive processes"
+- **Claude Desktop:** limit=10
+- **Claude Code (agents):** no limit restriction
 
-#### B. Keyword Search (Complementary)
+### B. Keyword Search (Complementary)
 - Use `zotero_search_items` with multiple keyword variations
 - Try synonyms, related terms, broader/narrower terms
 - Use different word forms (singular/plural, verb/noun)
@@ -106,92 +310,27 @@ Before searching, analyze what the user is looking for:
   - "literacy"
   - "comprehension strategies"
 
-#### C. Advanced Search (Targeted)
+### C. Advanced Search (Targeted)
 - Use `zotero_advanced_search` for precise criteria
 - Combine multiple fields (author + keyword, year + tag)
 - Use for filtering after broader searches
 
-#### D. Tag & Collection Filtering
+### D. Tag & Collection Filtering
 - Use `zotero_get_tags` to discover relevant tags
 - Use `zotero_search_by_tag` with multiple tag variations
 - Use `zotero_get_collections` and `zotero_get_collection_items` for organized searches
 
-#### E. Full-Text & Annotations
+### E. Full-Text & Annotations
 - Use `zotero_search_notes` to search annotations and highlights
 - Use `zotero_get_item_fulltext` for content not in metadata
 - Critical for finding concepts mentioned in text but not in titles/abstracts
 
-### 3. Iterative Refinement Process
-
-**Never stop at first results.** Follow this workflow:
-
-```
-1. Initial Search (semantic + keyword)
-   ↓
-2. Analyze Results
-   - Too many? Add filters (tags, date, collection)
-   - Too few? Broaden terms, try synonyms
-   - Wrong direction? Refine concept
-   ↓
-3. Second Round (refined terms + complementary methods)
-   ↓
-4. Cross-Check (full-text, annotations, related tags)
-   ↓
-5. Present Results (with search path explanation)
-```
-
-### 4. Required Search Variations
-
-For ANY user query, try AT MINIMUM:
-
-- **3 semantic search variations** (different phrasings)
-- **3 keyword variations** (synonyms, related terms)
-- **1 tag search** (check tags first, then search)
-- **1 full-text/annotation search** (if applicable)
-
-## Specific Tool Usage Guidelines
-
-### zotero_semantic_search
-**Use for:** Conceptual discovery, theme exploration, finding related work
-**Strategies:**
-- Try query as natural question: "What causes skill transfer?"
-- Try query as descriptive phrase: "factors influencing skill transfer between contexts"
-- Try query with synonyms: "skill generalization determinants"
-- **SAFETY**: Always use `limit=10` (max 15-20 for critical needs)
-- **For comprehensive results**: Use multiple searches with different phrasings, NOT larger limits
-
-### zotero_search_items
-**Use for:** Keyword matching, author/title searches
-**Strategies:**
-- Try multiple keyword combinations
-- Use partial matches (author last name only)
-- Combine with date ranges if too many results
-
-### zotero_advanced_search
-**Use for:** Precise filtering, combining criteria
-**Strategies:**
-- Start broad, then narrow with additional conditions
-- Combine author + keyword for specific works
-- Use itemType to filter by publication type
-
-### zotero_search_notes & zotero_get_annotations
-**Use for:** Finding your own thoughts, highlighted concepts
-**Strategies:**
-- Search for concepts you annotate but might not be in titles
-- Look for methodology terms in annotations
-- Check for cited authors mentioned in your notes
-
-### zotero_get_tags
-**Always check tags** before searching to discover:
-- User's tagging conventions
-- Related tags to search
-- Collection organization patterns
-
 ## Common Search Patterns
 
-### Pattern 1: "Find me papers about X" (Safe Comprehensive Search)
+### Pattern: "Find me papers about X"
+
+**Claude Desktop:**
 ```
-OPTION A: Multi-angle (do all searches yourself)
 1. zotero_semantic_search: "X" (limit=10)
 2. zotero_semantic_search: "X alternative phrasing" (limit=10)
 3. zotero_search_items: keyword variations of X (limit=10)
@@ -199,39 +338,28 @@ OPTION A: Multi-angle (do all searches yourself)
 5. zotero_search_by_tag: if relevant tags found (limit=10)
 6. zotero_search_notes: "X" (limit=10)
 Result: ~50+ results safely retrieved
-
-OPTION B: Agent-based (for complex searches)
-1. Launch agent with Task tool
-2. Agent prompt: "Search my Zotero library for papers about X using multiple approaches.
-   For each search use limit=10. Try: semantic search variations, keyword searches,
-   tag-based searches, and note searches. Synthesize the most relevant 20-30 results."
-3. Agent performs batched searches and returns curated results
 ```
 
-### Pattern 2: "What do I have on [author]?"
+**Claude Code:**
 ```
-1. zotero_search_items: author="[Author]"
-2. zotero_advanced_search: author + recent years
-3. zotero_search_notes: "[Author]" (citations in notes)
-4. zotero_semantic_search: "[Author]'s main concepts"
-```
-
-### Pattern 3: "Research about X in context Y"
-```
-1. zotero_semantic_search: "X in Y" + variations
-2. zotero_advanced_search: keyword=X AND keyword=Y
-3. zotero_get_tags: check for X-tags and Y-tags
-4. zotero_search_notes: "X" + "Y" separately
-5. Cross-reference results
+Launch agent with Task tool (Pattern 1)
+Agent performs comprehensive multi-strategy search
+Returns curated results with synthesis
 ```
 
-### Pattern 4: "Exploratory: What's related to X?"
+### Pattern: "What do I have on [author]?"
+
+**Claude Desktop:**
 ```
-1. zotero_semantic_search: multiple conceptual phrasings
-2. Get tags from initial results
-3. Search by related tags found
-4. Search notes/annotations with related concepts
-5. Present thematic clusters found
+1. zotero_search_items: author="[Author]" (limit=10)
+2. zotero_advanced_search: author + recent years (limit=10)
+3. zotero_search_notes: "[Author]" (limit=10)
+4. zotero_semantic_search: "[Author]'s main concepts" (limit=10)
+```
+
+**Claude Code:**
+```
+Launch agent with Task tool (Pattern 2)
 ```
 
 ## Search Failure Recovery
@@ -257,87 +385,140 @@ If initial searches yield poor results:
    - If searching for theory, search for phenomena it explains
    - If searching for author, search for concepts they study
 
-## Using Agents for Complex Searches
+---
 
-### When to Use Agents
+# PART 4: Bibliography Output Formatting
 
-Use the Task tool to launch an agent when:
-- User needs comprehensive results (30+ papers)
-- Search requires multiple different strategies
-- You want to combine, deduplicate, and synthesize results
-- User wants a curated list rather than raw search results
+When the user requests a bibliography or formatted output of search results:
 
-### How to Structure Agent Tasks
+## Logseq Formatting Standards
 
-**Good agent prompt structure:**
+**ALWAYS use outline hierarchy (nested bullet points), NEVER use markdown headers (`#`):**
+**NO BOLD STYLING - use plain text for all content**
+
+**Compact citation format:**
 ```
-Search my Zotero library for [topic]. Use multiple search strategies:
-
-1. Semantic search with 3-4 different phrasings (limit=10 each)
-2. Keyword searches with variations (limit=10 each)
-3. Tag-based searches if relevant tags exist (limit=10 each)
-4. Note/annotation searches (limit=10)
-
-IMPORTANT: Use limit=10 for all searches to avoid crashes.
-
-Combine all results, remove duplicates, and return the 25 most relevant papers
-with brief explanations of why each is relevant.
+- Main Topic - Bibliography
+	- A. Category Name
+		- Author(s), Year. Title (English Translation if applicable)
+			- Type: Article Type
+			- Journal: Journal Name, Volume X, Issue Y, Pages Z
+			- Zotero: [zotero://select/library/items/ITEM_KEY](zotero://select/library/items/ITEM_KEY)
+			- DOI: [if available]
+			- Abstract (Chinese): [if applicable]
+			- Abstract (English): [translation or original]
 ```
 
-### Agent Safety Guidelines
+**Format rules:**
+- First line: Author(s), Year. Title (English Translation)
+- For Chinese authors: 黃美金 (Huang Mei-Jin)
+- For multiple authors: separate with semicolons
+- For no date: use "n.d."
+- For no author: use institutional name or "N/A"
 
-**Tell agents:**
-- Always use limit=10 (max 15) for individual searches
-- Perform multiple small searches rather than large ones
-- Synthesize and prioritize results
-- Return curated findings, not raw data dumps
+## Translation Requirements
 
-**Agent benefits:**
-- Can perform many searches autonomously
-- Combines and deduplicates results
-- Provides synthesis and prioritization
-- Safer than single large searches
+1. **Chinese Abstracts:**
+   - Always provide BOTH Chinese original and English translation
+   - Label clearly as `Abstract (Chinese):` and `Abstract (English):`
+   - Translate comprehensively, not just summaries
 
-## Presentation Guidelines (Brief)
+2. **Chinese Titles:**
+   - Provide English translation in parentheses after Chinese title
+   - Format: `中文標題 (English Translation)`
+   - If English title exists in metadata, use that; otherwise translate
 
-When presenting results:
-- Explain what search strategies you used
-- Show why you chose those strategies
-- Note if results were refined/filtered
-- Suggest related searches if appropriate
+3. **Author Names:**
+   - Include both Chinese characters and romanization when available
+   - Format: `黃美金 (Huang Mei-Jin)`
 
-**Save detailed presentation preferences for later discussion.**
+## Required Metadata Fields
 
-## Critical Reminders
+Each bibliography entry must include (when available):
+- Title (with translations as needed)
+- Authors (with Chinese/romanization)
+- Date (YYYY-MM-DD or YYYY)
+- Type (Journal Article, Book Chapter, Thesis, etc.)
+- Journal/Publication (with volume, issue, pages)
+- Zotero link (format: `zotero://select/library/items/ITEM_KEY`)
+- Abstract (Chinese and/or English as applicable)
+- DOI (if available)
 
+## What NOT to Include
+
+- ❌ **No summary sections** at the end of bibliographies (no totals, no "organized by themes" recap)
+- ❌ **No markdown headers** (`#`, `##`, etc.) - use nested bullets only
+- ❌ **No bold styling** (`**text**`) - use plain text throughout
+- ❌ **No item counts** or statistics sections at the end
+
+## Bibliography Structure Example
+
+```
+- Indigenous Language Proficiency Certification (原住民族語言能力認證) - Bibliography
+	- A. Core Certification Papers
+		- 黃美金 (Huang Mei-Jin), 2003. 原住民族語言能力認證：回顧與展望 (Indigenous Language Proficiency Certification: Review and Prospects)
+			- Type: Journal Article
+			- Journal: 原住民教育季刊, Issue 9, Pages 5-27
+			- Zotero: [zotero://select/library/items/W44VF3CG](zotero://select/library/items/W44VF3CG)
+			- Abstract (Chinese): [full Chinese abstract]
+			- Abstract (English): [full English translation]
+	- B. Policy & Historical Context
+		- [next paper...]
+```
+
+## File Handling
+
+When creating bibliographies:
+1. Save to `/Users/niyaro/Desktop/` with descriptive filename
+2. Use `.md` extension
+3. Open in BBEdit automatically (use `bbedit` command)
+4. Confirm file creation and location to user
+
+---
+
+# PART 5: Tool Quick Reference
+
+| Tool | Primary Use | Claude Desktop Limit | Claude Code (Agent) |
+|------|-------------|---------------------|---------------------|
+| `zotero_semantic_search` | Conceptual discovery | limit=10 | No limit, use liberally |
+| `zotero_search_items` | Keyword matching | limit=10 | No limit |
+| `zotero_advanced_search` | Precise filtering | limit=10 | No limit |
+| `zotero_get_tags` | Discover tags | No limit needed | No limit needed |
+| `zotero_search_by_tag` | Tag filtering | limit=10 | No limit |
+| `zotero_search_notes` | Annotation search | limit=10 | No limit |
+| `zotero_get_annotations` | Highlight retrieval | limit=10 | No limit |
+| `zotero_get_item_fulltext` | Full-text access | N/A (single item) | N/A (single item) |
+| `zotero_get_collections` | Collection discovery | No limit needed | No limit needed |
+| `zotero_get_recent` | Recent additions | limit=10 | No limit |
+| `zotero_update_search_database` | Update index | N/A | N/A |
+
+---
+
+# Critical Reminders
+
+## For Both Environments
 - **Never use just one search method**
 - **Never try just one search term variation**
 - **Always check tags before searching**
 - **Always search both metadata and full-text/annotations**
 - **Always explain your search path**
 - **Always refine based on initial results**
+
+## Claude Desktop Specific
 - **🚨 SAFETY: Always use limit=10 (max 15-20) to prevent conversation deletion**
 - **🚨 SAFETY: For comprehensive results, use multiple searches or agents, NOT large limits**
 
-## Tool Quick Reference
+## Claude Code Specific
+- **Default to agents** for non-trivial searches
+- **Be comprehensive** - no crash limits
+- **Let agents explore** - they can handle complexity autonomously
+- **Synthesize results** - raw lists are not enough
 
-| Tool | Primary Use | When to Use | Safe Limit |
-|------|-------------|-------------|------------|
-| `zotero_semantic_search` | Conceptual discovery | Themes, theories, exploratory queries | limit=10 |
-| `zotero_search_items` | Keyword matching | Authors, specific terms, titles | limit=10 |
-| `zotero_advanced_search` | Precise filtering | Multiple criteria, narrow searches | limit=10 |
-| `zotero_get_tags` | Discover tags | ALWAYS before tag-based searches | No limit needed |
-| `zotero_search_by_tag` | Tag filtering | After discovering relevant tags | limit=10 |
-| `zotero_search_notes` | Annotation search | User's thoughts, cited concepts | limit=10 |
-| `zotero_get_annotations` | Highlight retrieval | Finding highlighted passages | limit=10 |
-| `zotero_get_item_fulltext` | Full-text access | Verify content, detailed review | N/A (single item) |
-| `zotero_get_collections` | Collection discovery | Understanding library organization | No limit needed |
-| `zotero_get_recent` | Recent additions | "What did I add lately?" | limit=10 |
+## Bibliography Formatting
+- **Format for Logseq** - use outline hierarchy, not headers; NO bold styling
+- **Compact citation format** - Author(s), Year. Title on first line
+- **Translate Chinese content** - provide both original and English versions
 
 ---
 
-**Remember:**
-- **Comprehensive, multi-angle, iterative searching is MANDATORY, not optional**
-- **Safety limits are CRITICAL to prevent conversation deletion**
-- **For comprehensive results: Use multiple limit=10 searches, NOT one large search**
-- **Consider using agents (Task tool) for complex multi-search operations**
+**Remember: This skill adapts to your environment. In Claude Code, leverage agents for comprehensive autonomous searches. In Claude Desktop, use careful batched searches with safety limits.**
