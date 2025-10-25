@@ -1,6 +1,6 @@
 # Zotero MCP Search Skill for Claude
 
-A comprehensive, **context-aware** skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server. **Designed specifically for Logseq bibliography output** with bilingual (Chinese-English) support. Works intelligently in both **Claude Desktop** and **Claude Code**.
+A comprehensive, **context-aware** skill that enables advanced, multi-strategy searching of your Zotero library through the Zotero MCP (Model Context Protocol) server. **Designed for output as a plain markdown formatted outline, suitable for pasting into Logseq.** Also offers side-by-side translation of Chinese titles and abstracts for improved English language search within Logseq. Works intelligently in both **Claude Desktop** and **Claude Code**.
 
 ## What This Is
 
@@ -8,7 +8,7 @@ This is a **universal Claude skill** that teaches Claude how to search your Zote
 
 - **In Claude Code:** Uses autonomous agents for comprehensive multi-step searches
 - **In Claude Desktop:** Uses safe batched searches with conversation crash protection
-- **For Logseq:** Formats bibliographies with outline hierarchy, compact citations, and bilingual support
+- **For plain markdown outline format:** Suitable for pasting into Logseq with side-by-side Chinese-English translations
 
 Instead of simple one-off searches, Claude learns to:
 
@@ -18,7 +18,7 @@ Instead of simple one-off searches, Claude learns to:
 - **Iteratively refine** searches based on results
 - **Ask clarifying questions** when your query is ambiguous
 - **Adapt strategy** based on environment (agents in Code, batching in Desktop)
-- **Format bibliographies for Logseq** with proper outline structure and translations
+- **Format as plain markdown outline** with proper structure and translations for Logseq
 
 ## Why This Skill Exists
 
@@ -48,7 +48,7 @@ This skill provides Claude with:
 - **Agent-based patterns** for Code (comprehensive autonomous searches)
 - **Comprehensive search patterns** combining multiple methods
 - **Iterative refinement workflows** to improve results
-- **Bibliography formatting** for Logseq with Chinese/English translation support
+- **Plain markdown outline formatting** suitable for Logseq with Chinese/English translation support
 
 ## Features
 
@@ -89,12 +89,12 @@ This skill provides Claude with:
 - **Multi-Angle Coverage:** Multiple small searches instead of large ones
 - **Crash Protection:** Built-in safeguards against conversation deletion
 
-### Bibliography Features
+### Output Formatting Features
 
-- **Logseq-Ready Formatting:** Outline hierarchy (no markdown headers)
+- **Plain Markdown Outline:** Nested bullets (no markdown headers), suitable for pasting into Logseq
 - **Compact Citations:** Author(s), Year. Title format
 - **No Bold Styling:** Plain text throughout
-- **Chinese-English Support:** Bilingual titles and abstracts
+- **Chinese-English Support:** Side-by-side titles and abstracts for improved English search
 - **Automatic Translation:** English translations of Chinese content
 - **Zotero Links:** Clickable zotero:// URLs for each item
 - **Thematic Organization:** Grouped by categories (no summary sections)
@@ -228,7 +228,7 @@ You can customize this skill by editing `SKILL.md`:
 - Add domain-specific search patterns
 - Adjust search variation requirements
 - Add custom presentation preferences
-- Customize bibliography formatting rules
+- Customize markdown outline formatting rules
 - Adjust agent prompts (Claude Code only)
 
 ### Search Database
@@ -318,7 +318,7 @@ Contributions welcome! To improve this skill:
 - Integration with other Zotero MCP features
 - Result presentation templates
 - Language-specific search variations
-- Additional bibliography formatting styles
+- Additional markdown outline formatting styles
 - More agent task patterns
 
 ## Related Projects
